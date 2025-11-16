@@ -1,133 +1,497 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>PASSWORDS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
+    :root {
+      --bg: #f6f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #4f46e5;
+      --primary-600: #4338ca;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --border: #e5e7eb;
+      --input: #f1f5f9;
+      --shadow: 0 10px 20px rgba(0,0,0,0.08);
+    }
+    .dark {
+      --bg: #0b1220;
+      --card: #0f172a;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --primary: #818cf8;
+      --primary-600: #6366f1;
+      --accent: #34d399;
+      --danger: #f87171;
+      --border: #1f2937;
+      --input: #111827;
+      --shadow: 0 10px 20px rgba(0,0,0,0.35);
+    }
+    * { box-sizing: border-box }
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6fb;
       margin: 0;
-      padding: 20px;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 300ms ease, color 300ms ease;
     }
-    h1 {
-      text-align: center;
-      color: #333;
+    header {
+      position: sticky;
+      top: 0;
+      backdrop-filter: saturate(180%) blur(8px);
+      background: color-mix(in oklab, var(--bg) 85%, transparent);
+      border-bottom: 1px solid var(--border);
+      z-index: 10;
     }
-    #searchBar {
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 18px;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; letter-spacing: 0.3px;
+    }
+    .brand .logo {
+      width: 34px; height: 34px; border-radius: 8px;
+      display: grid; place-items: center;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white; box-shadow: var(--shadow);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .actions { display: flex; align-items: center; gap: 10px }
+    .btn, button {
+      border: none; cursor: pointer; border-radius: 10px;
+      padding: 10px 14px; font-weight: 600;
+      transition: transform 120ms ease, background 200ms ease, color 200ms ease, opacity 200ms ease;
+    }
+    .btn:hover { transform: translateY(-1px) }
+    .btn-primary { background: var(--primary); color: white }
+    .btn-primary:hover { background: var(--primary-600) }
+    .btn-ghost { background: transparent; color: var(--text) }
+    .btn-danger { background: var(--danger); color: white }
+    .toggle {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--card); border: 1px solid var(--border);
+      padding: 8px 12px; border-radius: 999px;
+    }
+    main {
+      max-width: 1100px;
+      margin: 24px auto;
+      padding: 0 18px;
+      display: grid; grid-template-columns: 320px 1fr; gap: 20px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .card h3 {
+      margin: 0; padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 16px;
+    }
+    .card-body { padding: 16px }
+    .input, input, select, textarea {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--input);
+      color: var(--text);
+      outline: none;
+      transition: border 200ms ease, background 200ms ease;
     }
-    #passwordList {
-      margin-top: 20px;
+    .input:focus { border-color: var(--primary) }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+    .muted { color: var(--muted); font-size: 13px }
+    .list {
+      display: grid; gap: 10px;
     }
-    .entry {
-      background: #fff;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    .item {
+      display: grid; grid-template-columns: 1fr auto; gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      background: color-mix(in oklab, var(--card) 94%, transparent);
+      animation: fadeIn 250ms ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px) }
+      to { opacity: 1; transform: translateY(0) }
+    }
+    .item .name { font-weight: 600 }
+    .item .pwd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace }
+    .item .controls { display: flex; gap: 6px }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px }
+    .chip {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 999px;
+      background: color-mix(in oklab, var(--accent) 20%, var(--card) 80%);
+      color: color-mix(in oklab, var(--accent) 60%, var(--text) 40%);
+      font-weight: 600; font-size: 12px;
     }
     .ai-box {
-      background: #e9f5ff;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 20px;
+      background: color-mix(in oklab, var(--primary) 14%, var(--card) 86%);
+      border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px; display: grid; gap: 10px;
     }
-    button {
-      margin: 5px;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    .ai-text { font-weight: 600 }
+    .center { display: grid; place-items: center }
+    .hidden { display: none !important }
+    /* Modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+      display: grid; place-items: center; z-index: 100; animation: fadeIn 200ms ease;
     }
-    .yes-btn { background: #4caf50; color: white; }
-    .no-btn { background: #f44336; color: white; }
-    .save-btn { background: #2196f3; color: white; }
+    .modal {
+      width: 95%; max-width: 420px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .modal header { border-bottom: 1px solid var(--border) }
+    .modal .card-body { padding: 16px }
+    .footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border) }
+    .spacer { height: 8px }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace }
   </style>
 </head>
 <body>
-  <h1>🔑 PASSWORDS</h1>
+  <header>
+    <div class="nav">
+      <div class="brand">
+        <div class="logo">🔑</div>
+        <div>PASSWORDS</div>
+      </div>
+      <div class="actions">
+        <div class="toggle">
+          <span class="muted">Theme</span>
+          <button id="themeBtn" class="btn-ghost">Light</button>
+        </div>
+        <button id="signInBtn" class="btn-primary">Sign in</button>
+        <button id="signOutBtn" class="btn-ghost hidden">Sign out</button>
+      </div>
+    </div>
+  </header>
 
-  <input type="text" id="searchBar" placeholder="Search by name...">
+  <main>
+    <!-- Left column: search + add manual + AI -->
+    <section class="card">
+      <h3>Find & add passwords</h3>
+      <div class="card-body">
+        <div class="spacer"></div>
+        <input id="search" class="input" placeholder="Search by name... (live filter)" />
+        <div class="spacer"></div>
 
-  <div id="passwordList"></div>
+        <div class="grid-2">
+          <div>
+            <div class="chip">Manual</div>
+            <div class="spacer"></div>
+            <input id="manualName" class="input" placeholder="Password name" />
+            <div class="spacer"></div>
+            <div class="row">
+              <input id="manualPwd" class="input mono" placeholder="Enter password" />
+              <button id="manualSave" class="btn-primary">Save</button>
+            </div>
+            <p class="muted">Tip: Use 12+ characters, mix upper/lowercase, numbers, and symbols.</p>
+          </div>
+          <div>
+            <div class="chip">AI helper</div>
+            <div class="spacer"></div>
+            <div id="aiBox" class="ai-box">
+              <div class="ai-text">Click generate and I’ll propose a strong password.</div>
+              <div class="row">
+                <select id="aiLength" class="input">
+                  <option value="12">Length: 12</option>
+                  <option value="16">Length: 16</option>
+                  <option value="20">Length: 20</option>
+                </select>
+                <button id="aiGenerate" class="btn-primary">Generate</button>
+              </div>
+              <div id="aiResponse" class="hidden"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  <div class="ai-box" id="aiBox">
-    <p>Click below and I'll make you a password!</p>
-    <button onclick="generatePassword()">Generate Password</button>
+    <!-- Right column: list -->
+    <section class="card">
+      <h3>Saved passwords</h3>
+      <div class="card-body">
+        <div class="list" id="list"></div>
+        <div id="empty" class="center muted">No passwords saved yet.</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Sign-in modal -->
+  <div id="modalBackdrop" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal">
+      <header class="nav">
+        <div class="brand"><div class="logo">👤</div><div>Sign in</div></div>
+      </header>
+      <div class="card-body">
+        <p class="muted">Create a local profile to save your passwords in this browser. No cloud, just on your device.</p>
+        <div class="spacer"></div>
+        <input id="usernameInput" class="input" placeholder="Username (e.g., brisbane-user)" />
+        <div class="spacer"></div>
+        <input id="pinInput" class="input" placeholder="Optional PIN (numbers only)" />
+      </div>
+      <div class="footer">
+        <button id="modalCancel" class="btn-ghost">Cancel</button>
+        <button id="modalConfirm" class="btn-primary">Continue</button>
+      </div>
+    </div>
   </div>
 
   <script>
-    const passwords = [];
-    const passwordList = document.getElementById('passwordList');
-    const searchBar = document.getElementById('searchBar');
-    const aiBox = document.getElementById('aiBox');
+    // Theme
+    const themeBtn = document.getElementById('themeBtn');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = localStorage.getItem('pw_theme') || (prefersDark ? 'dark' : 'light');
+    const applyTheme = () => {
+      document.body.classList.toggle('dark', theme === 'dark');
+      themeBtn.textContent = theme === 'dark' ? 'Dark' : 'Light';
+    };
+    themeBtn.onclick = () => {
+      theme = theme === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('pw_theme', theme);
+      applyTheme();
+    };
+    applyTheme();
 
-    // Render stored passwords
-    function renderPasswords(list) {
-      passwordList.innerHTML = '';
-      list.forEach(entry => {
-        const div = document.createElement('div');
-        div.className = 'entry';
-        div.innerHTML = `<strong>${entry.name}</strong>: ${entry.password}`;
-        passwordList.appendChild(div);
+    // Auth (local-only)
+    const signInBtn = document.getElementById('signInBtn');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const usernameInput = document.getElementById('usernameInput');
+    const pinInput = document.getElementById('pinInput');
+
+    let currentUser = localStorage.getItem('pw_user') || null;
+
+    const openModal = () => { modalBackdrop.classList.remove('hidden'); usernameInput.focus(); };
+    const closeModal = () => modalBackdrop.classList.add('hidden');
+
+    const updateAuthUI = () => {
+      if (currentUser) {
+        signInBtn.classList.add('hidden');
+        signOutBtn.classList.remove('hidden');
+        signOutBtn.textContent = `Sign out (${currentUser})`;
+      } else {
+        signInBtn.classList.remove('hidden');
+        signOutBtn.classList.add('hidden');
+      }
+    };
+
+    signInBtn.onclick = openModal;
+    signOutBtn.onclick = () => {
+      currentUser = null;
+      localStorage.removeItem('pw_user');
+      render();
+      updateAuthUI();
+    };
+    modalCancel.onclick = closeModal;
+    modalConfirm.onclick = () => {
+      const u = (usernameInput.value || '').trim();
+      const p = (pinInput.value || '').trim();
+      if (!u) { alert('Please enter a username.'); return; }
+      // Store a simple hash of PIN; this is not secure—just illustrative.
+      if (p && !/^\d{4,8}$/.test(p)) { alert('PIN must be 4–8 digits (optional).'); return; }
+      localStorage.setItem('pw_user', u);
+      if (p) localStorage.setItem(`pw_pin_${u}`, btoa(p)); // demo only
+      currentUser = u;
+      closeModal();
+      render();
+      updateAuthUI();
+    };
+    updateAuthUI();
+
+    // Storage helpers
+    const keyForUser = () => currentUser ? `pw_store_${currentUser}` : `pw_store_guest`;
+    const readStore = () => {
+      try { return JSON.parse(localStorage.getItem(keyForUser()) || '[]'); }
+      catch { return []; }
+    };
+    const writeStore = (arr) => localStorage.setItem(keyForUser(), JSON.stringify(arr));
+
+    // UI elements
+    const search = document.getElementById('search');
+    const listEl = document.getElementById('list');
+    const emptyEl = document.getElementById('empty');
+    const manualName = document.getElementById('manualName');
+    const manualPwd = document.getElementById('manualPwd');
+    const manualSave = document.getElementById('manualSave');
+
+    // Render list
+    function render() {
+      const data = readStore();
+      const q = (search.value || '').toLowerCase();
+      const filtered = data.filter(x => x.name.toLowerCase().includes(q));
+      listEl.innerHTML = '';
+      filtered.forEach((item, i) => {
+        const row = document.createElement('div');
+        row.className = 'item';
+        row.innerHTML = `
+          <div>
+            <div class="name">${item.name}</div>
+            <div class="pwd mono ${item.hidden ? 'hidden' : ''}">${item.password}</div>
+            <div class="muted">Created: ${new Date(item.created).toLocaleString()}</div>
+          </div>
+          <div class="controls">
+            <button class="btn-ghost" data-action="toggle">${item.hidden ? 'Show' : 'Hide'}</button>
+            <button class="btn-ghost" data-action="copy">Copy</button>
+            <button class="btn-ghost" data-action="edit">Edit</button>
+            <button class="btn-danger" data-action="delete">Delete</button>
+          </div>
+        `;
+        // Controls
+        row.querySelectorAll('button').forEach(btn => {
+          btn.onclick = () => {
+            const action = btn.getAttribute('data-action');
+            const all = readStore();
+            if (action === 'toggle') {
+              all[i].hidden = !all[i].hidden;
+              writeStore(all); render();
+            } else if (action === 'copy') {
+              navigator.clipboard.writeText(item.password).then(() => {
+                btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy', 1200);
+              });
+            } else if (action === 'edit') {
+              const newName = prompt('Rename entry:', item.name);
+              if (newName && newName.trim()) { all[i].name = newName.trim(); }
+              const newPwd = prompt('Update password (leave blank to keep):', '');
+              if (newPwd && newPwd.trim()) { all[i].password = newPwd.trim(); }
+              writeStore(all); render();
+            } else if (action === 'delete') {
+              if (confirm(`Delete "${item.name}"?`)) {
+                all.splice(i, 1); writeStore(all); render();
+              }
+            }
+          };
+        });
+        listEl.appendChild(row);
       });
+      emptyEl.classList.toggle('hidden', filtered.length > 0);
     }
 
-    // Generate random password
-    function generatePassword() {
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-      let pwd = "";
-      for (let i = 0; i < 10; i++) {
-        pwd += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      aiBox.innerHTML = `
-        <p>Sure I can make a password, how about this: <strong>${pwd}</strong></p>
-        <button class="yes-btn" onclick="acceptPassword('${pwd}')">Yes</button>
-        <button class="no-btn" onclick="rejectPassword('${pwd}')">No</button>
+    // Manual save
+    manualSave.onclick = () => {
+      const name = (manualName.value || '').trim();
+      const pwd = (manualPwd.value || '').trim();
+      if (!name || !pwd) { alert('Enter both name and password.'); return; }
+      const all = readStore();
+      all.push({ name, password: pwd, hidden: true, created: Date.now() });
+      writeStore(all);
+      manualName.value = '';
+      manualPwd.value = '';
+      render();
+    };
+
+    // Search live
+    search.addEventListener('input', render);
+
+    // AI helper
+    const aiBox = document.getElementById('aiBox');
+    const aiLength = document.getElementById('aiLength');
+    const aiGenerate = document.getElementById('aiGenerate');
+    const aiResponse = document.getElementById('aiResponse');
+
+    function randomCharset(moreSecure = true) {
+      const lower = 'abcdefghijklmnopqrstuvwxyz';
+      const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const nums  = '0123456789';
+      const syms  = '!@#$%^&*()-_=+[]{};:,.?';
+      return moreSecure ? lower + upper + nums + syms : lower + nums;
+    }
+
+    function makePassword(len, charset) {
+      const arr = new Uint32Array(len);
+      crypto.getRandomValues(arr);
+      let out = '';
+      for (let i = 0; i < len; i++) out += charset[arr[i] % charset.length];
+      return out;
+    }
+
+    function aiSay(text, proposedPwd) {
+      aiResponse.classList.remove('hidden');
+      aiResponse.innerHTML = `
+        <div class="ai-text">Sure, I can make a password — how about this:</div>
+        <div class="mono" style="font-size:14px; padding:8px; border:1px dashed var(--border); border-radius:8px;">${proposedPwd}</div>
+        <div class="row" style="margin-top:10px;">
+          <button class="btn-primary" id="aiYes">Yes</button>
+          <button class="btn-ghost" id="aiNo">No</button>
+        </div>
       `;
+      document.getElementById('aiYes').onclick = () => {
+        aiResponse.innerHTML = `
+          <div class="ai-text">Cool! What do you want me to call this password?</div>
+          <div class="row" style="margin-top:8px;">
+            <input id="aiName" class="input" placeholder="Name (e.g., Roblox, Email, Wi-Fi)" />
+            <button class="btn-primary" id="aiSave">Save</button>
+          </div>
+        `;
+        document.getElementById('aiSave').onclick = () => {
+          const name = (document.getElementById('aiName').value || '').trim();
+          if (!name) { alert('Please enter a name.'); return; }
+          const all = readStore();
+          all.push({ name, password: proposedPwd, hidden: true, created: Date.now() });
+          writeStore(all);
+          aiResponse.innerHTML = `<div class="ai-text">Saved as "${name}". Want me to make another?</div>
+            <button class="btn-ghost" id="aiAnother">Generate another</button>`;
+          document.getElementById('aiAnother').onclick = () => aiGenerate.click();
+          render();
+        };
+      };
+      document.getElementById('aiNo').onclick = () => {
+        aiResponse.innerHTML = `
+          <div class="ai-text">Why not? Do you want it more secure, less secure, or no password now?</div>
+          <div class="row" style="margin-top:8px;">
+            <button class="btn-primary" id="moreSecure">More secure</button>
+            <button class="btn-ghost" id="lessSecure">Less secure</button>
+            <button class="btn-ghost" id="noNow">Don't want</button>
+          </div>
+        `;
+        document.getElementById('moreSecure').onclick = () => {
+          const pwd = makePassword(parseInt(aiLength.value, 10), randomCharset(true));
+          aiSay('Here’s a stronger one:', pwd);
+        };
+        document.getElementById('lessSecure').onclick = () => {
+          const len = Math.max(8, parseInt(aiLength.value, 10) - 4);
+          const pwd = makePassword(len, randomCharset(false));
+          aiSay('Here’s a simpler one:', pwd);
+        };
+        document.getElementById('noNow').onclick = () => {
+          aiResponse.innerHTML = `<div class="muted">Okay, no password for now.</div>`;
+        };
+      };
     }
 
-    // Accept password
-    function acceptPassword(pwd) {
-      aiBox.innerHTML = `
-        <p>Cool! Now what do you want me to call this password?</p>
-        <input type="text" id="pwdName" placeholder="Enter name">
-        <button class="save-btn" onclick="savePassword('${pwd}')">Save</button>
-      `;
-    }
+    aiGenerate.onclick = () => {
+      const len = parseInt(aiLength.value, 10);
+      const pwd = makePassword(len, randomCharset(true));
+      aiSay('How about this:', pwd);
+    };
 
-    // Reject password
-    function rejectPassword(pwd) {
-      aiBox.innerHTML = `
-        <p>Why? Do you want it more secure, less secure, or you don't want a password now?</p>
-        <button onclick="generatePassword()">More Secure</button>
-        <button onclick="generatePassword()">Less Secure</button>
-        <button onclick="aiBox.innerHTML='<p>Okay, no password for now.</p>'">Don't Want</button>
-      `;
-    }
-
-    // Save password
-    function savePassword(pwd) {
-      const name = document.getElementById('pwdName').value;
-      if (name) {
-        passwords.push({name, password: pwd});
-        renderPasswords(passwords);
-        aiBox.innerHTML = `<p>Password "${name}" saved successfully!</p>
-                           <button onclick="generatePassword()">Generate Another</button>`;
-      }
-    }
-
-    // Search functionality
-    searchBar.addEventListener('input', function() {
-      const query = searchBar.value.toLowerCase();
-      const filtered = passwords.filter(entry => entry.name.toLowerCase().includes(query));
-      renderPasswords(filtered);
-    });
+    // Initial render
+    render();
   </script>
 </body>
 </html>
