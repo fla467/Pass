@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PASSWORDS</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6fb;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #searchBar {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #passwordList {
+      margin-top: 20px;
+    }
+    .entry {
+      background: #fff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .ai-box {
+      background: #e9f5ff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .yes-btn { background: #4caf50; color: white; }
+    .no-btn { background: #f44336; color: white; }
+    .save-btn { background: #2196f3; color: white; }
+  </style>
+</head>
+<body>
+  <h1>🔑 PASSWORDS</h1>
+
+  <input type="text" id="searchBar" placeholder="Search by name...">
+
+  <div id="passwordList"></div>
+
+  <div class="ai-box" id="aiBox">
+    <p>Click below and I'll make you a password!</p>
+    <button onclick="generatePassword()">Generate Password</button>
+  </div>
+
+  <script>
+    const passwords = [];
+    const passwordList = document.getElementById('passwordList');
+    const searchBar = document.getElementById('searchBar');
+    const aiBox = document.getElementById('aiBox');
+
+    // Render stored passwords
+    function renderPasswords(list) {
+      passwordList.innerHTML = '';
+      list.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'entry';
+        div.innerHTML = `<strong>${entry.name}</strong>: ${entry.password}`;
+        passwordList.appendChild(div);
+      });
+    }
+
+    // Generate random password
+    function generatePassword() {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+      let pwd = "";
+      for (let i = 0; i < 10; i++) {
+        pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      aiBox.innerHTML = `
+        <p>Sure I can make a password, how about this: <strong>${pwd}</strong></p>
+        <button class="yes-btn" onclick="acceptPassword('${pwd}')">Yes</button>
+        <button class="no-btn" onclick="rejectPassword('${pwd}')">No</button>
+      `;
+    }
+
+    // Accept password
+    function acceptPassword(pwd) {
+      aiBox.innerHTML = `
+        <p>Cool! Now what do you want me to call this password?</p>
+        <input type="text" id="pwdName" placeholder="Enter name">
+        <button class="save-btn" onclick="savePassword('${pwd}')">Save</button>
+      `;
+    }
+
+    // Reject password
+    function rejectPassword(pwd) {
+      aiBox.innerHTML = `
+        <p>Why? Do you want it more secure, less secure, or you don't want a password now?</p>
+        <button onclick="generatePassword()">More Secure</button>
+        <button onclick="generatePassword()">Less Secure</button>
+        <button onclick="aiBox.innerHTML='<p>Okay, no password for now.</p>'">Don't Want</button>
+      `;
+    }
+
+    // Save password
+    function savePassword(pwd) {
+      const name = document.getElementById('pwdName').value;
+      if (name) {
+        passwords.push({name, password: pwd});
+        renderPasswords(passwords);
+        aiBox.innerHTML = `<p>Password "${name}" saved successfully!</p>
+                           <button onclick="generatePassword()">Generate Another</button>`;
+      }
+    }
+
+    // Search functionality
+    searchBar.addEventListener('input', function() {
+      const query = searchBar.value.toLowerCase();
+      const filtered = passwords.filter(entry => entry.name.toLowerCase().includes(query));
+      renderPasswords(filtered);
+    });
+  </script>
+</body>
+</html>
